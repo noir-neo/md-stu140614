@@ -34,14 +34,64 @@ var game = game || {};
       
       this.own = OwnShape(200, 50).addChildTo(this);
       
-      
+      this.mStars = new Array();
+      this.addStar();
     },
     
     // 毎フレームごとに呼ばれる
     update: function() {
       
+      this.mStars.each(function(theStar) {
+        if (this.own.isHitPointRect(theStar.x, theStar.y)) {
+          theStar.direction = - theStar.direction;
+          this.addStar();
+        }
+      }.bind(this));
+      
     },
     
+    addStar: function() {
+       this.mStars.push(MyStar(this.own.x, this.own.y-this.own.height/2, 50, 50).addChildTo(this));
+    },
+    
+  });
+  
+  tm.define('MyStar', {
+    superClass: 'tm.display.StarShape',
+    init: function(x, y, width, height) {
+      this.superInit(width, height);
+      this.setBoundingType('circle')
+        .setPosition(x, y);
+      this.color = 'white';
+      this.rotation = 0;
+      this.direction = Math.rand(182, 358);
+      this.speed = 20;
+      this.active = true;
+    },
+    
+    update: function () {
+      if (this.active) {
+        var theta = this.direction / 180 * Math.PI;
+        this.x += Math.cos(theta) * this.speed;
+        this.y += Math.sin(theta) * this.speed;
+
+        if (this.x <= 0 || this.x >= ns.SCREEN_WIDTH)
+          this.direction = 180 - this.direction;
+
+        if (this.y <= 0)
+          this.direction = -this.direction;
+
+        if (this.y >= ns.SCREEN_HEIGHT)
+          this.active = false;
+
+        this.rotation += 20;
+      }
+    },    
+    
+    draw: function(canvas) {
+      canvas.fillStyle = this.color;
+      canvas.fillStar(0, 0, this.width/2, 5);
+    },
   });
   
   tm.define('OwnShape', {
