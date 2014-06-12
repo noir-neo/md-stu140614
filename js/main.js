@@ -34,6 +34,11 @@ var game = game || {};
       
       this.own = OwnShape(200, 50).addChildTo(this);
       
+      this.mLabel = tm.display.Label('☆:0', 80)
+        .setPosition(50, 100)
+        .setFontFamily('cursive')
+        .addChildTo(this);
+      
       this.mStars = new Array();
       this.addStar();
     },
@@ -47,6 +52,7 @@ var game = game || {};
           this.addStar();
         }
       }.bind(this));
+      this.mLabel.text = '☆:'+this.mStars.length;
       
     },
     
