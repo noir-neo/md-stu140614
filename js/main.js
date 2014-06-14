@@ -39,7 +39,7 @@ var game = game || {};
         .setFontFamily('cursive')
         .addChildTo(this);
       
-      this.mStars = new Array();
+      this.mStars = [];
       this.addStar();
     },
     
@@ -49,6 +49,7 @@ var game = game || {};
       this.mStars.each(function(theStar) {
         if (this.own.isHitPointRect(theStar.x, theStar.y)) {
           theStar.direction = - theStar.direction;
+          theStar.accelSpeed();
           this.addStar();
         }
       }.bind(this));
@@ -58,6 +59,12 @@ var game = game || {};
     
     addStar: function() {
        this.mStars.push(MyStar(this.own.x, this.own.y-this.own.height/2, 50, 50).addChildTo(this));
+    },
+    
+    deleteStar: function(theStar) {
+      var index = this.mStars.indexOf(theStar);
+      this.mStars.splice(index, 1);
+      //this.removeChild(theStar);
     },
     
   });
@@ -77,22 +84,33 @@ var game = game || {};
     
     update: function () {
       if (this.active) {
+        
         var theta = this.direction / 180 * Math.PI;
         this.x += Math.cos(theta) * this.speed;
         this.y += Math.sin(theta) * this.speed;
 
-        if (this.x <= 0 || this.x >= ns.SCREEN_WIDTH)
+        if (this.x <= 0 || this.x >= ns.SCREEN_WIDTH) {
           this.direction = 180 - this.direction;
+          this.accelSpeed();
+        }
 
-        if (this.y <= 0)
+        if (this.y <= 0) {
           this.direction = -this.direction;
+          this.accelSpeed();
+        }
 
-        if (this.y >= ns.SCREEN_HEIGHT)
+        if (this.y >= ns.SCREEN_HEIGHT) {
           this.active = false;
+          this.parent.deleteStar(this);
+        }
 
-        this.rotation += 20;
+        this.rotation += this.speed;
       }
     },    
+    
+    accelSpeed: function() {
+      this.speed *= 1.01;
+    },
     
     draw: function(canvas) {
       canvas.fillStyle = this.color;
